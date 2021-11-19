@@ -2,4 +2,4 @@
 
 Sensirion SCD4x driver
 
-<!-- Describe `Scd4x` library here -->
+An mbed C++ driver for the Sensirion SCD40 and SCD41 CO2 sensors.
