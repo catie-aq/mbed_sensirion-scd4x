@@ -79,19 +79,21 @@ SCD4X::ErrorType SCD4X::start_periodic_measurement()
     return this->send_command(Command::StartPeriodicMeasurement);
 }
 
+/** Measurement buffer */
+static uint16_t measurement_buf[3];
+
 SCD4X::ErrorType SCD4X::read_measurement(scd4x_measurement_t *data)
 {
     ErrorType err;
-    uint16_t buf[3];
 
-    err = this->read(Command::ReadMeasurement, 3, buf);
+    err = this->read(Command::ReadMeasurement, 3, measurement_buf);
     if (err != ErrorType::Ok) {
         goto read_measurement_end;
     }
 
-    data->co2 = buf[0];
-    data->temperature = raw_to_temperature(buf[1], -45.0);
-    data->rh = raw_to_rh(buf[2]);
+    data->co2 = measurement_buf[0];
+    data->temperature = raw_to_temperature(measurement_buf[1], -45.0);
+    data->rh = raw_to_rh(measurement_buf[2]);
 
 read_measurement_end:
     return err;
@@ -259,13 +261,16 @@ SCD4X::ErrorType SCD4X::send_command(Command cmd)
     return retval;
 }
 
+/** Read buffer */
+static char read_buf[3 * MAX_READ_SIZE];
+
 SCD4X::ErrorType SCD4X::read(
         Command cmd, uint8_t len, uint16_t *val_out, Clock::duration_u32 exec_time)
 {
-    char bytes[len * 3];
+
     ErrorType retval = ErrorType::Ok;
 
-    U16_TO_BYTE_ARRAY(static_cast<uint16_t>(cmd), bytes);
+    U16_TO_BYTE_ARRAY(static_cast<uint16_t>(cmd), read_buf);
 
     this->_bus->lock();
 
@@ -273,7 +278,7 @@ SCD4X::ErrorType SCD4X::read(
         retval = ErrorType::ReadSizeTooLarge;
         goto read_end;
     }
-    if (this->_bus->write(SCD4X_ADDR, bytes, 2, true)) {
+    if (this->_bus->write(SCD4X_ADDR, read_buf, 2, true)) {
         retval = ErrorType::I2cError;
         this->_bus->stop();
         goto read_end;
@@ -281,16 +286,16 @@ SCD4X::ErrorType SCD4X::read(
 
     ThisThread::sleep_for(exec_time);
 
-    if (this->_bus->read(SCD4X_ADDR, bytes, 3 * len, false)) {
+    if (this->_bus->read(SCD4X_ADDR, read_buf, 3 * len, false)) {
         retval = ErrorType::I2cError;
         this->_bus->stop();
         goto read_end;
     }
 
     for (int i = 0; i < len; i++) {
-        BYTE_ARRAY_TO_U16((bytes + (3 * i)), val_out[i]);
+        BYTE_ARRAY_TO_U16((read_buf + (3 * i)), val_out[i]);
 
-        if (compute_crc(bytes + (3 * i), 2) != (bytes + (3 * i))[2]) {
+        if (compute_crc(read_buf + (3 * i), 2) != (read_buf + (3 * i))[2]) {
             retval = ErrorType::CrcError;
             break;
         }
