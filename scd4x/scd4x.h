@@ -266,7 +266,7 @@ private:
      * \return Ok on success, the reason of failure otherwise
      */
     ErrorType read(
-            Command cmd, uint16_t len, uint16_t *val_out, Clock::duration_u32 exec_time = 1ms);
+            Command cmd, uint8_t len, uint16_t *val_out, Clock::duration_u32 exec_time = 1ms);
 
     /*!
      * \brief Write data to the sensor
@@ -277,7 +277,7 @@ private:
      *
      * \return Ok on success, the reason of failure otherwise
      */
-    ErrorType write(Command cmd, uint16_t len, uint16_t *val_in);
+    ErrorType write(Command cmd, uint8_t len, uint16_t *val_in);
 
     /*!
      * \brief Read data from the sensor

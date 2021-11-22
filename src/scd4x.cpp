@@ -253,7 +253,7 @@ SCD4X::ErrorType SCD4X::send_command(Command cmd)
 }
 
 SCD4X::ErrorType SCD4X::read(
-        Command cmd, uint16_t len, uint16_t *val_out, Clock::duration_u32 exec_time)
+        Command cmd, uint8_t len, uint16_t *val_out, Clock::duration_u32 exec_time)
 {
     char bytes[len * 3];
     ErrorType retval = ErrorType::Ok;
@@ -294,7 +294,7 @@ read_end:
     return retval;
 }
 
-SCD4X::ErrorType SCD4X::write(Command cmd, uint16_t len, uint16_t *val_in)
+SCD4X::ErrorType SCD4X::write(Command cmd, uint8_t len, uint16_t *val_in)
 {
     ErrorType retval = ErrorType::Ok;
 
