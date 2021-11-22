@@ -15,6 +15,9 @@
 #define SCD4X_REFLECT_IN (false)
 #define SCD4X_REFLECT_OUT (false)
 
+#define SELF_TEST_WAIT_TIME (10s)
+#define FORCED_CALIBRATION_WAIT_TIME (400ms)
+
 #define U16_TO_BYTE_ARRAY(u, ba)                                                                   \
     do {                                                                                           \
         ba[0] = (u >> 8) & 0xFF;                                                                   \
@@ -135,8 +138,10 @@ SCD4X::ErrorType SCD4X::perform_forced_calibration(uint16_t target_co2, uint16_t
     ErrorType err;
     uint16_t frc_result;
 
-    err = this->send_and_fetch(
-            Command::PerformForcedRecalibration, &target_co2, &frc_result, 400ms);
+    err = this->send_and_fetch(Command::PerformForcedRecalibration,
+            &target_co2,
+            &frc_result,
+            FORCED_CALIBRATION_WAIT_TIME);
 
     if (err == ErrorType::Ok) {
         if (frc_result == 0xFFFF) {
@@ -199,7 +204,7 @@ SCD4X::ErrorType SCD4X::perform_self_test()
     ErrorType err;
     uint16_t data;
 
-    err = this->read(Command::PerformSelfTest, 1, &data, 10s);
+    err = this->read(Command::PerformSelfTest, 1, &data, SELF_TEST_WAIT_TIME);
 
     if ((err == ErrorType::Ok) && (data != 0)) {
         err = ErrorType::SelfTestError;
