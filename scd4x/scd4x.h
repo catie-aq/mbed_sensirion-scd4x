@@ -21,10 +21,10 @@ typedef struct {
 } scd4x_measurement_t;
 
 /*!
- *  \class Scd4x
+ *  \class SCD4X
  *  SCD4X CO2 sensor driver
  */
-class Scd4x {
+class SCD4X {
 public:
     enum class ErrorType {
         Ok = 0,
@@ -35,7 +35,7 @@ public:
         SelfTestError,
     };
 
-    Scd4x(I2C *bus);
+    SCD4X(I2C *bus);
 
     ErrorType start_periodic_measurement();
     ErrorType read_measurement(scd4x_measurement_t *data);

@@ -43,16 +43,16 @@ static double raw_to_rh(uint16_t raw)
     return ((double)(raw)*100.0 / (1 << 16));
 }
 
-Scd4x::Scd4x(I2C *bus): _bus(bus)
+SCD4X::SCD4X(I2C *bus): _bus(bus)
 {
 }
 
-Scd4x::ErrorType Scd4x::start_periodic_measurement()
+SCD4X::ErrorType SCD4X::start_periodic_measurement()
 {
     return this->send_command(Command::StartPeriodicMeasurement);
 }
 
-Scd4x::ErrorType Scd4x::read_measurement(scd4x_measurement_t *data)
+SCD4X::ErrorType SCD4X::read_measurement(scd4x_measurement_t *data)
 {
     ErrorType err;
     uint16_t buf[3];
@@ -70,18 +70,18 @@ read_measurement_end:
     return err;
 }
 
-Scd4x::ErrorType Scd4x::stop_periodic_measurement()
+SCD4X::ErrorType SCD4X::stop_periodic_measurement()
 {
     return this->send_command(Command::StopPeriodicMeasurement);
 }
 
-Scd4x::ErrorType Scd4x::set_temperature_offset(float t)
+SCD4X::ErrorType SCD4X::set_temperature_offset(float t)
 {
     uint16_t data = temperature_to_raw(t);
     return this->write(Command::SetTemperatureOffset, 1, &data);
 }
 
-Scd4x::ErrorType Scd4x::get_temperature_offset(float *t)
+SCD4X::ErrorType SCD4X::get_temperature_offset(float *t)
 {
     uint16_t data;
     ErrorType err;
@@ -93,22 +93,22 @@ Scd4x::ErrorType Scd4x::get_temperature_offset(float *t)
     return err;
 }
 
-Scd4x::ErrorType Scd4x::set_sensor_altitude(uint16_t alt)
+SCD4X::ErrorType SCD4X::set_sensor_altitude(uint16_t alt)
 {
     return this->write(Command::SetSensorAltitude, 1, &alt);
 }
 
-Scd4x::ErrorType Scd4x::get_sensor_altitude(uint16_t *alt)
+SCD4X::ErrorType SCD4X::get_sensor_altitude(uint16_t *alt)
 {
     return this->read(Command::GetSensorAltitude, 1, alt);
 }
 
-Scd4x::ErrorType Scd4x::set_ambient_pressure(uint16_t hpa)
+SCD4X::ErrorType SCD4X::set_ambient_pressure(uint16_t hpa)
 {
     return this->write(Command::SetAmbientPressure, 1, &hpa);
 }
 
-Scd4x::ErrorType Scd4x::perform_forced_calibration(uint16_t target_co2, uint16_t *frc_correction)
+SCD4X::ErrorType SCD4X::perform_forced_calibration(uint16_t target_co2, uint16_t *frc_correction)
 {
     ErrorType err;
     uint16_t frc_result;
@@ -127,13 +127,13 @@ Scd4x::ErrorType Scd4x::perform_forced_calibration(uint16_t target_co2, uint16_t
     return err;
 }
 
-Scd4x::ErrorType Scd4x::set_automatic_calibration_enabled(bool enable)
+SCD4X::ErrorType SCD4X::set_automatic_calibration_enabled(bool enable)
 {
     uint16_t tmp = (enable) ? 1 : 0;
     return this->write(Command::SetAutomaticSelfCalibrationEnabled, 1, &tmp);
 }
 
-Scd4x::ErrorType Scd4x::get_automatic_calibration_enabled(bool *enable)
+SCD4X::ErrorType SCD4X::get_automatic_calibration_enabled(bool *enable)
 {
     uint16_t tmp;
     ErrorType err;
@@ -143,12 +143,12 @@ Scd4x::ErrorType Scd4x::get_automatic_calibration_enabled(bool *enable)
     return err;
 }
 
-Scd4x::ErrorType Scd4x::start_low_power_periodic_measurement()
+SCD4X::ErrorType SCD4X::start_low_power_periodic_measurement()
 {
     return this->send_command(Command::StartLowPowerPeriodicMeasurement);
 }
 
-Scd4x::ErrorType Scd4x::get_data_ready_status()
+SCD4X::ErrorType SCD4X::get_data_ready_status()
 {
     ErrorType err;
     uint16_t data;
@@ -162,17 +162,17 @@ Scd4x::ErrorType Scd4x::get_data_ready_status()
     return err;
 }
 
-Scd4x::ErrorType Scd4x::persist_settings()
+SCD4X::ErrorType SCD4X::persist_settings()
 {
     return this->send_command(Command::PersistSettings);
 }
 
-Scd4x::ErrorType Scd4x::get_serial_number(uint16_t serial[3])
+SCD4X::ErrorType SCD4X::get_serial_number(uint16_t serial[3])
 {
     return this->read(Command::GetSerialNumber, 3, serial);
 }
 
-Scd4x::ErrorType Scd4x::perform_self_test()
+SCD4X::ErrorType SCD4X::perform_self_test()
 {
     ErrorType err;
     uint16_t data;
@@ -186,27 +186,27 @@ Scd4x::ErrorType Scd4x::perform_self_test()
     return err;
 }
 
-Scd4x::ErrorType Scd4x::perfom_factory_reset()
+SCD4X::ErrorType SCD4X::perfom_factory_reset()
 {
     return this->send_command(Command::PerformFactoryReset);
 }
 
-Scd4x::ErrorType Scd4x::reinit()
+SCD4X::ErrorType SCD4X::reinit()
 {
     return this->send_command(Command::Reinit);
 }
 
-Scd4x::ErrorType Scd4x::measure_single_shot_rht_only()
+SCD4X::ErrorType SCD4X::measure_single_shot_rht_only()
 {
     return this->send_command(Command::MeasureSingleShotRhtOnly);
 }
 
-Scd4x::ErrorType Scd4x::measure_single_shot()
+SCD4X::ErrorType SCD4X::measure_single_shot()
 {
     return this->send_command(Command::MeasureSingleShot);
 }
 
-char Scd4x::compute_crc(char *data, uint8_t len)
+char SCD4X::compute_crc(char *data, uint8_t len)
 {
     uint32_t crc;
     MbedCRC<SCD4X_POLY, SCD4X_WIDTH_POLY> ct(
@@ -216,7 +216,7 @@ char Scd4x::compute_crc(char *data, uint8_t len)
     return (crc & 0xFF);
 }
 
-Scd4x::ErrorType Scd4x::send_command(Command cmd)
+SCD4X::ErrorType SCD4X::send_command(Command cmd)
 {
     ErrorType retval = ErrorType::Ok;
 
@@ -230,7 +230,7 @@ Scd4x::ErrorType Scd4x::send_command(Command cmd)
     return retval;
 }
 
-Scd4x::ErrorType Scd4x::read(
+SCD4X::ErrorType SCD4X::read(
         Command cmd, uint16_t len, uint16_t *val_out, Clock::duration_u32 exec_time)
 {
     char bytes[len * 3];
@@ -268,7 +268,7 @@ read_end:
     return retval;
 }
 
-Scd4x::ErrorType Scd4x::write(Command cmd, uint16_t len, uint16_t *val_in)
+SCD4X::ErrorType SCD4X::write(Command cmd, uint16_t len, uint16_t *val_in)
 {
     ErrorType retval = ErrorType::Ok;
 
@@ -300,7 +300,7 @@ write_end:
     return retval;
 }
 
-Scd4x::ErrorType Scd4x::send_and_fetch(
+SCD4X::ErrorType SCD4X::send_and_fetch(
         Command cmd, uint16_t *val_in, uint16_t *val_out, Clock::duration_u32 exec_time)
 {
     ErrorType retval = ErrorType::Ok;
