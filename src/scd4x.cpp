@@ -26,22 +26,44 @@
         u = (ba[0] << 8) | (ba[1]);                                                                \
     } while (0)
 
-namespace sixtron {
-
+/*!
+ * brief Convert raw binary temperature value from sensor to a double
+ *
+ * \param raw raw value from the sensor
+ * \param offset offset value to apply (depends on the command used)
+ *
+ * \return temperature in Celsius degrees
+ */
 static double raw_to_temperature(uint16_t raw, double offset)
 {
     return (offset + (double)(raw)*175.0 / (1 << 16));
 }
 
+/*!
+ * brief Convert temperature in Celsius degrees to sensor raw format
+ *
+ * \param t temperature in Celsius degrees
+ *
+ * \return raw binary value for the sensor
+ */
 static uint16_t temperature_to_raw(double t)
 {
     return round(t * (1 << 16) / 175);
 }
 
+/*!
+ * brief Convert raw binary relative humidity value from sensor to a double
+ *
+ * \param raw raw value from the sensor
+ *
+ * \return Relative humidity in %
+ */
 static double raw_to_rh(uint16_t raw)
 {
     return ((double)(raw)*100.0 / (1 << 16));
 }
+
+namespace sixtron {
 
 SCD4X::SCD4X(I2C *bus): _bus(bus)
 {
