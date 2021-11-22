@@ -262,6 +262,10 @@ SCD4X::ErrorType SCD4X::read(
 
     this->_bus->lock();
 
+    if (len > 3) {
+        retval = ErrorType::ReadSizeTooLarge;
+        goto read_end;
+    }
     if (this->_bus->write(SCD4X_ADDR, bytes, 2, true)) {
         retval = ErrorType::I2cError;
         this->_bus->stop();

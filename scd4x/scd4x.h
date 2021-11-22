@@ -35,6 +35,7 @@ public:
     enum class ErrorType {
         Ok = 0,
         I2cError,
+        ReadSizeTooLarge,
         CrcError,
         DataNotReady,
         FrcError,
