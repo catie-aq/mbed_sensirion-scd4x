@@ -18,6 +18,8 @@
 #define SELF_TEST_WAIT_TIME (10s)
 #define FORCED_CALIBRATION_WAIT_TIME (400ms)
 
+#define MAX_READ_SIZE (3)
+
 #define U16_TO_BYTE_ARRAY(u, ba)                                                                   \
     do {                                                                                           \
         ba[0] = (u >> 8) & 0xFF;                                                                   \
@@ -267,7 +269,7 @@ SCD4X::ErrorType SCD4X::read(
 
     this->_bus->lock();
 
-    if (len > 3) {
+    if (len > MAX_READ_SIZE) {
         retval = ErrorType::ReadSizeTooLarge;
         goto read_end;
     }
