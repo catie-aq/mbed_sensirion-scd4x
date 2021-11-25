@@ -32,13 +32,23 @@ typedef struct {
  */
 class SCD4X {
 public:
+    /*!
+     * \brief Commands error codes
+     */
     enum class ErrorType {
+        /** Command successful */
         Ok = 0,
+        /** Error returned by I2C communication */
         I2cError,
+        /** Requested read size is too large */
         ReadSizeTooLarge,
+        /** CRC mismatch in received frame */
         CrcError,
+        /** Sensor data is not ready to be read */
         DataNotReady,
+        /** Forced calibration failure */
         FrcError,
+        /** Self test failure */
         SelfTestError,
     };
 
