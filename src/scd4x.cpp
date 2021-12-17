@@ -70,7 +70,7 @@ static double raw_to_rh(uint16_t raw)
 
 namespace sixtron {
 
-SCD4X::SCD4X(I2C *bus): _bus(bus)
+SCD4X::SCD4X(PinName i2c_sda, PinName i2c_scl): _bus(i2c_sda, i2c_scl)
 {
 }
 
@@ -254,7 +254,7 @@ SCD4X::ErrorType SCD4X::send_command(Command cmd)
     char bytes[2];
     U16_TO_BYTE_ARRAY(static_cast<uint16_t>(cmd), bytes);
 
-    if (this->_bus->write(SCD4X_ADDR, bytes, 2, false)) {
+    if (this->_bus.write(SCD4X_ADDR, bytes, 2, false)) {
         retval = ErrorType::I2cError;
     }
 
@@ -272,23 +272,23 @@ SCD4X::ErrorType SCD4X::read(
 
     U16_TO_BYTE_ARRAY(static_cast<uint16_t>(cmd), read_buf);
 
-    this->_bus->lock();
+    this->_bus.lock();
 
     if (len > MAX_READ_SIZE) {
         retval = ErrorType::ReadSizeTooLarge;
         goto read_end;
     }
-    if (this->_bus->write(SCD4X_ADDR, read_buf, 2, true)) {
+    if (this->_bus.write(SCD4X_ADDR, read_buf, 2, true)) {
         retval = ErrorType::I2cError;
-        this->_bus->stop();
+        this->_bus.stop();
         goto read_end;
     }
 
     ThisThread::sleep_for(exec_time);
 
-    if (this->_bus->read(SCD4X_ADDR, read_buf, 3 * len, false)) {
+    if (this->_bus.read(SCD4X_ADDR, read_buf, 3 * len, false)) {
         retval = ErrorType::I2cError;
-        this->_bus->stop();
+        this->_bus.stop();
         goto read_end;
     }
 
@@ -302,7 +302,7 @@ SCD4X::ErrorType SCD4X::read(
     }
 
 read_end:
-    this->_bus->unlock();
+    this->_bus.unlock();
     return retval;
 }
 
@@ -313,11 +313,11 @@ SCD4X::ErrorType SCD4X::write(Command cmd, uint8_t len, uint16_t *val_in)
     char bytes[3];
     U16_TO_BYTE_ARRAY(static_cast<uint16_t>(cmd), bytes);
 
-    this->_bus->lock();
+    this->_bus.lock();
 
-    if (this->_bus->write(SCD4X_ADDR, bytes, 2, true)) {
+    if (this->_bus.write(SCD4X_ADDR, bytes, 2, true)) {
         retval = ErrorType::I2cError;
-        this->_bus->stop();
+        this->_bus.stop();
         goto write_end;
     }
 
@@ -325,16 +325,16 @@ SCD4X::ErrorType SCD4X::write(Command cmd, uint8_t len, uint16_t *val_in)
         U16_TO_BYTE_ARRAY(*val_in, bytes);
         bytes[2] = compute_crc(bytes, 2);
 
-        if (this->_bus->write(SCD4X_ADDR, bytes, 3, i == len)) {
+        if (this->_bus.write(SCD4X_ADDR, bytes, 3, i == len)) {
             retval = ErrorType::I2cError;
-            this->_bus->stop();
+            this->_bus.stop();
             goto write_end;
         }
 
         val_in++;
     }
 write_end:
-    this->_bus->unlock();
+    this->_bus.unlock();
     return retval;
 }
 
@@ -346,28 +346,28 @@ SCD4X::ErrorType SCD4X::send_and_fetch(
     char bytes[3];
     U16_TO_BYTE_ARRAY(static_cast<uint16_t>(cmd), bytes);
 
-    this->_bus->lock();
+    this->_bus.lock();
 
-    if (this->_bus->write(SCD4X_ADDR, bytes, 2, true)) {
+    if (this->_bus.write(SCD4X_ADDR, bytes, 2, true)) {
         retval = ErrorType::I2cError;
-        this->_bus->stop();
+        this->_bus.stop();
         goto send_fetch_end;
     }
 
     U16_TO_BYTE_ARRAY(*val_in, bytes);
     bytes[2] = compute_crc(bytes, 2);
 
-    if (this->_bus->write(SCD4X_ADDR, bytes, 3, true)) {
+    if (this->_bus.write(SCD4X_ADDR, bytes, 3, true)) {
         retval = ErrorType::I2cError;
-        this->_bus->stop();
+        this->_bus.stop();
         goto send_fetch_end;
     }
 
     ThisThread::sleep_for(exec_time);
 
-    if (this->_bus->read(SCD4X_ADDR, bytes, 3, false)) {
+    if (this->_bus.read(SCD4X_ADDR, bytes, 3, false)) {
         retval = ErrorType::I2cError;
-        this->_bus->stop();
+        this->_bus.stop();
         goto send_fetch_end;
     }
 
@@ -378,7 +378,7 @@ SCD4X::ErrorType SCD4X::send_and_fetch(
     }
 
 send_fetch_end:
-    this->_bus->unlock();
+    this->_bus.unlock();
     return retval;
 }
 

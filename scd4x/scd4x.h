@@ -54,9 +54,10 @@ public:
 
     /*! Constructor
      *
-     * \param bus pointer to mbed I2C object
+     * \param i2c_sda I2C SDA pin
+     * \param i2c_scl I2C SCL pin
      */
-    SCD4X(I2C *bus);
+    SCD4X(PinName i2c_sda, PinName i2c_scl);
 
     /*!
      * \brief Send command to start periodic measurement
@@ -243,7 +244,7 @@ private:
         MeasureSingleShotRhtOnly = 0x2196,
     };
 
-    I2C *_bus;
+    I2C _bus;
 
     /*!
      * \brief Compute CRC of a given message
